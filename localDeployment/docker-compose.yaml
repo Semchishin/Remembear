@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: remembear
+      POSTGRES_PASSWORD: remembear
+      POSTGRES_DB: remembear
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres15_data:/var/lib/postgresql/data
+
+volumes:
+  postgres15_data:
