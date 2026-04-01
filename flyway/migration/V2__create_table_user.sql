@@ -1,6 +1,6 @@
 --create table user
 create table if not exists users(
-    id bigint primary key,
+    id serial primary key,
     name varchar(64),
     login varchar(64),
     password varchar(64)

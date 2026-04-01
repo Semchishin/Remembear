@@ -2,13 +2,8 @@ package semchishin.rememberprocessingservice.repository;
 
 import semchishin.rememberprocessingservice.model.User;
 
-public interface UserRepository {
+public interface UserRepository extends CrudRepository<User, Long> {
 
-    User add(User user);
+    User findByUsername(String username);
 
-    User findById(Long id);
-
-    User updateById(User user);
-
-    void deleteById(Long id);
 }

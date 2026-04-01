@@ -3,12 +3,13 @@ package semchishin.rememberprocessingservice.repository;
 import semchishin.rememberprocessingservice.model.Remind;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RemindRepository {
 
-    Remind add();
+    Remind add(Remind remind);
 
-    Remind findById(Long id);
+    Optional<Remind> findById(Long id);
 
     List<Remind> findAllByUserId(Long userId);
 

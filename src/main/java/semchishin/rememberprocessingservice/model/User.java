@@ -20,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode
 public class User implements UserDetails {
 
-    private final Long id;
+    private Long id;
 
     @NonNull
     private String name;
@@ -43,4 +43,10 @@ public class User implements UserDetails {
     public String getUsername() {
         return login;
     }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
 }

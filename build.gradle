@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.sonarqube' version '7.2.3.7755'
 }
 
 group = 'Semchishin'
@@ -38,9 +39,11 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     implementation 'org.flywaydb:flyway-database-postgresql'
     compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-amqp-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jdbc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-test'
@@ -51,6 +54,40 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+sonarqube {
+    properties {
+        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.token', 'sqa_f0a1f805c5fab33d8d1e85e93298f2346675ffd5'
+        property 'sonar.projectKey', 'remember-processing-service'
+        property 'sonar.projectName', 'Remember Processing Service'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.sources', 'src/main/java'
+        property 'sonar.tests', 'src/test/java'
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
+    filter {
+        excludeTestsMatching 'semchishin.flyway'
+    }
+}
+
+tasks.register('flywayClean', Test) {
+    group = 'database'
+    description = 'Start flywayClean()'
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching 'semchishin.flyway.FlywayTest#flywayClean'
+    }
+}
+
+
+tasks.register('flywayMigrate', Test) {
+    group = 'database'
+    description = 'Start flywayMigrate()'
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching 'semchishin.flyway.FlywayTest#flywayMigrate'
+    }
 }
