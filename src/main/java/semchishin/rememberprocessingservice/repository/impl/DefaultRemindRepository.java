@@ -15,9 +15,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DefaultRemindRepository implements RemindRepository {
 
-    private final JdbcTemplate template;
+    public static final String DELETE_BY_ID = "DELETE FROM reminds WHERE remind_id = ?";
 
-    private static final String FIND_BY_ID = "SELECT * FROM reminds where remindid = ?";
+    public static final String INSERT = "INSERT INTO reminds" +
+            " (user_id, title, description, created_at, remind_at) VALUES (?, ?, ?, ?, ?)" +
+            " RETURNING remind_id";
+
+    public static final String SELECT_ALL = "SELECT * FROM reminds WHERE user_id = ?";
+
+    public static final String UPDATE_BY_ID = "UPDATE reminds SET user_id = ?, title = ?, description = ?, remind_at = ?" +
+            " WHERE remind_id = ?";
+
+    private static final String FIND_BY_ID = "SELECT * FROM reminds where remind_id = ?";
 
     private static final RowMapper<Remind> ROW_MAPPER = (rs, rowNum) -> new Remind(
             rs.getLong("remind_id"),
@@ -28,9 +37,14 @@ public class DefaultRemindRepository implements RemindRepository {
             rs.getTimestamp("remind_at").toLocalDateTime()
     );
 
+    private final JdbcTemplate template;
+
     @Override
     public Remind add(Remind remind) {
-        return null;
+        Long id = template.queryForObject(INSERT, Long.class, remind.getUserId(), remind.getTitle(),
+                remind.getDescription(), remind.getCreatedAt(), remind.getRemindAt());
+        remind.setRemindId(id);
+        return remind;
     }
 
     @Override
@@ -41,16 +55,18 @@ public class DefaultRemindRepository implements RemindRepository {
 
     @Override
     public List<Remind> findAllByUserId(Long userId) {
-        return List.of();
+        return template.query(SELECT_ALL, ROW_MAPPER, userId);
     }
 
     @Override
-    public Remind updateById(Long id) {
-        return null;
+    public void update(Remind remind) {
+        template.update(UPDATE_BY_ID, remind.getUserId(), remind.getTitle(),
+                remind.getDescription(), remind.getCreatedAt(), remind.getRemindAt(),
+                remind.getRemindId());
     }
 
     @Override
     public void deleteById(Long id) {
-
+        template.update(DELETE_BY_ID, id);
     }
 }

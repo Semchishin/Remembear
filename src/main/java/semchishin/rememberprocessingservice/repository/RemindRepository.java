@@ -13,7 +13,7 @@ public interface RemindRepository {
 
     List<Remind> findAllByUserId(Long userId);
 
-    Remind updateById(Long id);
+    void update(Remind remind);
 
     void deleteById(Long id);
 
