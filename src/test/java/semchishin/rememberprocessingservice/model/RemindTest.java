@@ -8,41 +8,45 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RemindTest {
 
+    private static final String TITLE = "title";
+    private static final String DESC = "desc";
+    private static final String SHORT_TITLE = "t";
+    private static final String SHORT_DESC = "d";
+    private static final LocalDateTime REMIND_AT = LocalDateTime.of(2026, 6, 1, 10, 0);
+
     @Test
     void createWithRemindTimeShouldSetAllFields() {
-        LocalDateTime remindAt = LocalDateTime.of(2026, 6, 1, 10, 0);
-
-        Remind remind = Remind.createWithRemindTime("title", "desc", remindAt);
+        Remind remind = Remind.createWithRemindTime(TITLE, DESC, REMIND_AT);
 
         assertNull(remind.getRemindId());
         assertNull(remind.getUserId());
-        assertEquals("title", remind.getTitle());
-        assertEquals("desc", remind.getDescription());
+        assertEquals(TITLE, remind.getTitle());
+        assertEquals(DESC, remind.getDescription());
         assertNotNull(remind.getCreatedAt());
-        assertEquals(remindAt, remind.getRemindAt());
+        assertEquals(REMIND_AT, remind.getRemindAt());
     }
 
     @Test
     void createWithoutRemindTimeShouldNotSetRemindAt() {
-        Remind remind = Remind.createWithoutRemindTime("title", "desc");
+        Remind remind = Remind.createWithoutRemindTime(TITLE, DESC);
 
         assertNull(remind.getRemindId());
         assertNull(remind.getUserId());
-        assertEquals("title", remind.getTitle());
-        assertEquals("desc", remind.getDescription());
+        assertEquals(TITLE, remind.getTitle());
+        assertEquals(DESC, remind.getDescription());
         assertNotNull(remind.getCreatedAt());
         assertNull(remind.getRemindAt());
     }
 
     @Test
     void createWithRemindTimeShouldSetCreatedAtToNow() {
-        Remind remind = Remind.createWithRemindTime("t", "d", LocalDateTime.now().plusDays(1));
+        Remind remind = Remind.createWithRemindTime(SHORT_TITLE, SHORT_DESC, LocalDateTime.now().plusDays(1));
         assertNotNull(remind.getCreatedAt());
     }
 
     @Test
     void createWithoutRemindTimeShouldSetCreatedAtToNow() {
-        Remind remind = Remind.createWithoutRemindTime("t", "d");
+        Remind remind = Remind.createWithoutRemindTime(SHORT_TITLE, SHORT_DESC);
         assertNotNull(remind.getCreatedAt());
     }
 }

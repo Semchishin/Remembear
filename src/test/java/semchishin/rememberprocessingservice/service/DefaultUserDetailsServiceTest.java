@@ -14,6 +14,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DefaultUserDetailsServiceTest {
 
+    private static final Long USER_ID = 1L;
+    private static final String USER_NAME = "name";
+    private static final String USER_LOGIN = "login";
+    private static final String USER_PASSWORD = "pass";
+    private static final String USER_ROLE = "USER";
+    private static final String UNKNOWN_LOGIN = "unknown";
+    private static final String EXCEPTION_MESSAGE = "User not found";
+
     @Mock
     private UserRepository userRepository;
 
@@ -22,21 +30,21 @@ class DefaultUserDetailsServiceTest {
 
     @Test
     void loadUserByUsernameShouldDelegateToRepository() {
-        User expected = new User(1L, "name", "login", "pass", "USER");
-        when(userRepository.findByUsername("login")).thenReturn(expected);
+        User expected = new User(USER_ID, USER_NAME, USER_LOGIN, USER_PASSWORD, USER_ROLE);
+        when(userRepository.findByUsername(USER_LOGIN)).thenReturn(expected);
 
-        var result = userDetailsService.loadUserByUsername("login");
+        var result = userDetailsService.loadUserByUsername(USER_LOGIN);
 
         assertSame(expected, result);
-        verify(userRepository).findByUsername("login");
+        verify(userRepository).findByUsername(USER_LOGIN);
     }
 
     @Test
     void loadUserByUsernameShouldPropagateException() {
-        when(userRepository.findByUsername("unknown"))
-                .thenThrow(new RuntimeException("User not found"));
+        when(userRepository.findByUsername(UNKNOWN_LOGIN))
+                .thenThrow(new RuntimeException(EXCEPTION_MESSAGE));
 
         assertThrows(RuntimeException.class,
-                () -> userDetailsService.loadUserByUsername("unknown"));
+                () -> userDetailsService.loadUserByUsername(UNKNOWN_LOGIN));
     }
 }

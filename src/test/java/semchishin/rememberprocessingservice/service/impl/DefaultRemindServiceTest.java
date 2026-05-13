@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import semchishin.rememberprocessingservice.TestConstants;
 import semchishin.rememberprocessingservice.exception.RemindNotFoundException;
 import semchishin.rememberprocessingservice.model.Remind;
 import semchishin.rememberprocessingservice.repository.RemindRepository;
@@ -19,18 +20,32 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DefaultRemindServiceTest {
 
+    private static final LocalDateTime NOW = TestConstants.BASE_TIMESTAMP;
+    private static final LocalDateTime PLUS_1H = NOW.plusHours(1);
+    private static final LocalDateTime PLUS_2H = NOW.plusHours(2);
+
+    private static final Long USER_ID = 1L;
+    private static final Long REMIND_ID = 1L;
+    private static final Long SAVED_REMIND_ID = 42L;
+    private static final Long MISSING_REMIND_ID = 99L;
+
+    private static final String TITLE = "title";
+    private static final String DESC = "desc";
+    private static final String TITLE_1 = "t1";
+    private static final String DESC_1 = "d1";
+    private static final String TITLE_2 = "t2";
+    private static final String DESC_2 = "d2";
+
     @Mock
     private RemindRepository remindRepository;
 
     @InjectMocks
     private DefaultRemindService remindService;
 
-    private final LocalDateTime now = LocalDateTime.of(2026, 5, 13, 12, 0);
-
     @Test
     void createReminderShouldDelegateToRepository() {
-        Remind remind = new Remind(null, 1L, "title", "desc", now, now.plusHours(1));
-        Remind saved = new Remind(42L, 1L, "title", "desc", now, now.plusHours(1));
+        Remind remind = new Remind(null, USER_ID, TITLE, DESC, NOW, PLUS_1H);
+        Remind saved = new Remind(SAVED_REMIND_ID, USER_ID, TITLE, DESC, NOW, PLUS_1H);
         when(remindRepository.add(remind)).thenReturn(saved);
 
         Remind result = remindService.createReminder(remind);
@@ -41,36 +56,36 @@ class DefaultRemindServiceTest {
 
     @Test
     void findRemindByIdShouldReturnRemindWhenFound() {
-        Remind remind = new Remind(1L, 1L, "title", "desc", now, now.plusHours(1));
-        when(remindRepository.findById(1L)).thenReturn(Optional.of(remind));
+        Remind remind = new Remind(REMIND_ID, USER_ID, TITLE, DESC, NOW, PLUS_1H);
+        when(remindRepository.findById(REMIND_ID)).thenReturn(Optional.of(remind));
 
-        Remind result = remindService.findRemindById(1L);
+        Remind result = remindService.findRemindById(REMIND_ID);
 
         assertSame(remind, result);
     }
 
     @Test
     void findRemindByIdShouldThrowWhenNotFound() {
-        when(remindRepository.findById(99L)).thenReturn(Optional.empty());
+        when(remindRepository.findById(MISSING_REMIND_ID)).thenReturn(Optional.empty());
 
-        assertThrows(RemindNotFoundException.class, () -> remindService.findRemindById(99L));
+        assertThrows(RemindNotFoundException.class, () -> remindService.findRemindById(MISSING_REMIND_ID));
     }
 
     @Test
     void getAllRemindsByUserIdShouldReturnList() {
-        Remind r1 = new Remind(1L, 1L, "t1", "d1", now, now.plusHours(1));
-        Remind r2 = new Remind(2L, 1L, "t2", "d2", now, now.plusHours(2));
-        when(remindRepository.findAllByUserId(1L)).thenReturn(List.of(r1, r2));
+        Remind r1 = new Remind(REMIND_ID, USER_ID, TITLE_1, DESC_1, NOW, PLUS_1H);
+        Remind r2 = new Remind(2L, USER_ID, TITLE_2, DESC_2, NOW, PLUS_2H);
+        when(remindRepository.findAllByUserId(USER_ID)).thenReturn(List.of(r1, r2));
 
-        List<Remind> result = remindService.getAllRemindsByUserId(1L);
+        List<Remind> result = remindService.getAllRemindsByUserId(USER_ID);
 
         assertEquals(2, result.size());
-        verify(remindRepository).findAllByUserId(1L);
+        verify(remindRepository).findAllByUserId(USER_ID);
     }
 
     @Test
     void updateRemindShouldDelegateToRepository() {
-        Remind remind = new Remind(1L, 1L, "title", "desc", now, now.plusHours(1));
+        Remind remind = new Remind(REMIND_ID, USER_ID, TITLE, DESC, NOW, PLUS_1H);
 
         remindService.UpdateRemind(remind);
 
@@ -79,8 +94,8 @@ class DefaultRemindServiceTest {
 
     @Test
     void deleteByIdShouldDelegateToRepository() {
-        remindService.deleteById(1L);
+        remindService.deleteById(REMIND_ID);
 
-        verify(remindRepository).deleteById(1L);
+        verify(remindRepository).deleteById(REMIND_ID);
     }
 }
