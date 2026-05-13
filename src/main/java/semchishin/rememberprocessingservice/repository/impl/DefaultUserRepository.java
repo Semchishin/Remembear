@@ -21,7 +21,7 @@ public class DefaultUserRepository implements UserRepository {
     public static final String SELECT_BY_USERNAME = "SELECT * FROM users WHERE login = ?";
     public static final String UPDATE_BY_ID = "UPDATE users SET name = ?, login = ?, password = ?, role = ?" +
             " WHERE id = ?";
-    private static final RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(
+    static final RowMapper<User> ROW_MAPPER = (rs, rowNum) -> new User(
             rs.getLong("id"),
             rs.getString("name"),
             rs.getString("login"),
@@ -45,8 +45,7 @@ public class DefaultUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(Long id) {
-        User user = template.queryForObject(SELECT_BY_ID, ROW_MAPPER, id);
-        return Optional.ofNullable(user);
+        return template.query(SELECT_BY_ID, ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override

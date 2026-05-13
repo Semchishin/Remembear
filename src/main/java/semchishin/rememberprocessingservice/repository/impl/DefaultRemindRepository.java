@@ -26,9 +26,9 @@ public class DefaultRemindRepository implements RemindRepository {
     public static final String UPDATE_BY_ID = "UPDATE reminds SET user_id = ?, title = ?, description = ?, remind_at = ?" +
             " WHERE remind_id = ?";
 
-    private static final String FIND_BY_ID = "SELECT * FROM reminds where remind_id = ?";
+    static final String FIND_BY_ID = "SELECT * FROM reminds where remind_id = ?";
 
-    private static final RowMapper<Remind> ROW_MAPPER = (rs, rowNum) -> new Remind(
+    static final RowMapper<Remind> ROW_MAPPER = (rs, rowNum) -> new Remind(
             rs.getLong("remind_id"),
             rs.getLong("user_id"),
             rs.getString("title"),
@@ -49,8 +49,7 @@ public class DefaultRemindRepository implements RemindRepository {
 
     @Override
     public Optional<Remind> findById(Long id) {
-        Remind remind = template.queryForObject(FIND_BY_ID, Remind.class, id);
-        return Optional.ofNullable(remind);
+        return template.query(FIND_BY_ID, ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
@@ -61,7 +60,7 @@ public class DefaultRemindRepository implements RemindRepository {
     @Override
     public void update(Remind remind) {
         template.update(UPDATE_BY_ID, remind.getUserId(), remind.getTitle(),
-                remind.getDescription(), remind.getCreatedAt(), remind.getRemindAt(),
+                remind.getDescription(), remind.getRemindAt(),
                 remind.getRemindId());
     }
 

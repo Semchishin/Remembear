@@ -17,6 +17,23 @@ spring:
     locations: filesystem:flyway/migration
     enabled: true
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    topic:
+      remind-name: remind-topic
+      partitions: 3
+      replicas: 1
+    consumer:
+      group-id: remind-processing-group
+      auto-offset-reset: earliest
+      trusted-packages: "*"
+    type-mappings: remind:semchishin.rememberprocessingservice.model.Remind
+
+security:
+  permit-all-paths: /api/auth/**,/api/public/**
+  admin-path: /api/admin/**
+  admin-role: ADMIN
+
 logging:
   level:
     org.springframework.jdbc: DEBUG

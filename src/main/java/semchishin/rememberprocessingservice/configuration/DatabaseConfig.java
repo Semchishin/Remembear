@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class DatabaseConfig {
 
-
     @Value("${spring.datasource.url}")
     private String url;
 
@@ -30,6 +29,21 @@ public class DatabaseConfig {
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
 
+    @Value("${spring.hikari.maximum-pool-size}")
+    private int maxPoolSize;
+
+    @Value("${spring.hikari.minimum-idle}")
+    public int minIdle;
+
+    @Value("${spring.hikari.connection-timeout}")
+    public int connectionTimeoutMs;
+
+    @Value("${spring.hikari.idle-timeout}")
+    public int idleTimeoutMs;
+
+    @Value("${spring.hikari.max-lifetime}")
+    public int maxLifetimeMs;
+
     @Bean
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
@@ -37,11 +51,11 @@ public class DatabaseConfig {
         config.setUsername(username);
         config.setPassword(password);
         config.setDriverClassName(driverClassName);
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(5);
-        config.setConnectionTimeout(30000);
-        config.setIdleTimeout(600000);
-        config.setMaxLifetime(1800000);
+        config.setMaximumPoolSize(maxPoolSize);
+        config.setMinimumIdle(minIdle);
+        config.setConnectionTimeout(connectionTimeoutMs);
+        config.setIdleTimeout(idleTimeoutMs);
+        config.setMaxLifetime(maxLifetimeMs);
 
         return new HikariDataSource(config);
     }

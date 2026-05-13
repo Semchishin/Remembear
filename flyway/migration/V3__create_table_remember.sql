@@ -1,7 +1,7 @@
 --create table reminds
 create table if not exists reminds
 (
-    remind_id bigint primary key,
+    remind_id serial primary key,
     user_id bigint,
     title varchar(64),
     description varchar(64),
