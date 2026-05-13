@@ -2,6 +2,7 @@ package semchishin.rememberprocessingservice.repository.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import semchishin.rememberprocessingservice.TestConstants;
 import semchishin.rememberprocessingservice.model.User;
 
 import java.util.List;
@@ -11,61 +12,79 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultUserRepositoryTest extends AbstractRepositoryTest {
 
+    private static final String DEFAULT_NAME = "name";
+    private static final String DEFAULT_LOGIN = "login";
+    private static final String DEFAULT_PASSWORD = "pass";
+    private static final String DEFAULT_ROLE = "USER";
+
+    private static final String NAME_1 = "n1";
+    private static final String LOGIN_1 = "l1";
+    private static final String PASSWORD_1 = "p1";
+
+    private static final String NAME_2 = "n2";
+    private static final String LOGIN_2 = "l2";
+    private static final String PASSWORD_2 = "p2";
+    private static final String ROLE_2 = "ADMIN";
+
+    private static final String ORIGINAL_NAME = "original";
+    private static final String UPDATED_NAME = "updated";
+    private static final String UPDATED_PASSWORD = "newpass";
+
     private DefaultUserRepository repository;
 
     @BeforeEach
     void setUp() {
         repository = new DefaultUserRepository(template);
-        template.update("DELETE FROM reminds");
-        template.update("DELETE FROM users");
+        template.update(TestConstants.DELETE_FROM_REMINDS);
+        template.update(TestConstants.DELETE_FROM_USERS);
     }
 
     @Test
     void saveShouldInsertAndSetId() {
-        User user = new User(null, "name", "login", "pass", "USER");
+        User user = new User(null, DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_ROLE);
 
         User result = repository.save(user);
 
         assertNotNull(result.getId());
-        assertEquals("name", result.getName());
-        assertEquals("login", result.getLogin());
-        assertEquals("pass", result.getPassword());
-        assertEquals("USER", result.getRole());
+        assertEquals(DEFAULT_NAME, result.getName());
+        assertEquals(DEFAULT_LOGIN, result.getLogin());
+        assertEquals(DEFAULT_PASSWORD, result.getPassword());
+        assertEquals(DEFAULT_ROLE, result.getRole());
     }
 
     @Test
     void findByIdShouldReturnUserWhenFound() {
-        Long id = insertUser("name", "login", "pass", "USER");
+        Long id = insertUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_ROLE);
 
         Optional<User> result = repository.findById(id);
 
         assertTrue(result.isPresent());
-        assertEquals("name", result.get().getName());
-        assertEquals("login", result.get().getLogin());
+        assertEquals(DEFAULT_NAME, result.get().getName());
+        assertEquals(DEFAULT_LOGIN, result.get().getLogin());
     }
 
     @Test
     void findByIdShouldReturnEmptyWhenNotFound() {
-        Optional<User> result = repository.findById(999L);
+        Optional<User> result = repository.findById(TestConstants.NON_EXISTENT_ID);
 
         assertTrue(result.isEmpty());
     }
 
     @Test
     void findByUsernameShouldReturnUser() {
-        insertUser("name", "login", "pass", "USER");
+        insertUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_ROLE);
 
-        User result = repository.findByUsername("login");
+        User result = repository.findByUsername(DEFAULT_LOGIN);
 
-        assertEquals("name", result.getName());
-        assertEquals("login", result.getLogin());
-        assertEquals("USER", result.getRole());
+        assertEquals(DEFAULT_NAME, result.getName());
+        assertEquals(DEFAULT_LOGIN, result.getLogin());
+        assertEquals(DEFAULT_ROLE, result.getRole());
     }
 
     @Test
     void findAllShouldReturnList() {
-        insertUser("n1", "l1", "p1", "USER");
-        insertUser("n2", "l2", "p2", "ADMIN");
+        insertUser(NAME_1, LOGIN_1, PASSWORD_1, DEFAULT_ROLE);
+        insertUser(NAME_2, LOGIN_2, PASSWORD_2, ROLE_2);
 
         List<User> result = repository.findAll();
 
@@ -81,24 +100,24 @@ class DefaultUserRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void updateShouldModifyUser() {
-        Long id = insertUser("original", "login", "pass", "USER");
+        Long id = insertUser(ORIGINAL_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_ROLE);
         User user = repository.findById(id).orElseThrow();
-        user.setName("updated");
-        user.setPassword("newpass");
-        user.setRole("ADMIN");
+        user.setName(UPDATED_NAME);
+        user.setPassword(UPDATED_PASSWORD);
+        user.setRole(ROLE_2);
 
         repository.update(user);
 
         User fetched = repository.findById(id).orElseThrow();
-        assertEquals("updated", fetched.getName());
-        assertEquals("login", fetched.getLogin());
-        assertEquals("newpass", fetched.getPassword());
-        assertEquals("ADMIN", fetched.getRole());
+        assertEquals(UPDATED_NAME, fetched.getName());
+        assertEquals(DEFAULT_LOGIN, fetched.getLogin());
+        assertEquals(UPDATED_PASSWORD, fetched.getPassword());
+        assertEquals(ROLE_2, fetched.getRole());
     }
 
     @Test
     void deleteByIdShouldRemoveUser() {
-        Long id = insertUser("name", "login", "pass", "USER");
+        Long id = insertUser(DEFAULT_NAME, DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_ROLE);
 
         repository.deleteById(id);
 
@@ -107,7 +126,7 @@ class DefaultUserRepositoryTest extends AbstractRepositoryTest {
 
     private Long insertUser(String name, String login, String password, String role) {
         return template.queryForObject(
-                "INSERT INTO users (name, login, password, role) VALUES (?, ?, ?, ?) RETURNING id",
+                TestConstants.INSERT_USER_SQL,
                 Long.class, name, login, password, role);
     }
 }
